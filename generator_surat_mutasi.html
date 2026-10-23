@@ -35,11 +35,11 @@
         /* Panel Pratinjau Dokumen (Kanan) */
         .preview-panel { flex: 1.8; min-width: 340px; display: flex; justify-content: center; }
         
-        /* Layout Presisi Lembar A4 */
+        /* Layout Presisi Lembar A4 Sesuai Word */
         .a4-page {
             width: 210mm;
             min-height: 297mm;
-            padding: 17.8mm 25.4mm 25.4mm 25.4mm;
+            padding: 15mm 25.4mm 25.4mm 25.4mm;
             background: #ffffff;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             font-family: Arial, sans-serif;
@@ -49,6 +49,44 @@
             position: relative;
             box-sizing: border-box;
             margin: 0 auto;
+        }
+
+        /* Styling Kop Surat CV Selabintana */
+        .kop-surat {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 4px;
+            padding-bottom: 4px;
+        }
+        .kop-logo {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .kop-text {
+            text-align: center;
+            width: 100%;
+        }
+        .kop-nama {
+            font-size: 16pt;
+            font-weight: bold;
+            font-family: 'Times New Roman', Times, serif;
+            letter-spacing: 0.5px;
+            color: #000;
+            margin-bottom: 2px;
+        }
+        .kop-alamat, .kop-kota {
+            font-size: 9.5pt;
+            font-family: Arial, sans-serif;
+            color: #000;
+            line-height: 1.25;
+        }
+        .kop-line {
+            border-bottom: 4px double #000;
+            margin-bottom: 22px;
         }
 
         .doc-header { text-align: center; margin-bottom: 25px; }
@@ -77,7 +115,7 @@
             .control-panel { display: none !important; }
             .container { max-width: 100%; margin: 0; }
             .preview-panel { width: 100%; }
-            .a4-page { box-shadow: none; margin: 0; width: 100%; padding: 17.8mm 25.4mm 25.4mm 25.4mm; page-break-after: always; }
+            .a4-page { box-shadow: none; margin: 0; width: 100%; padding: 15mm 25.4mm 25.4mm 25.4mm; page-break-after: always; }
         }
     </style>
 </head>
@@ -185,6 +223,28 @@
         <!-- Panel Pratinjau Surat -->
         <div class="preview-panel">
             <div class="a4-page">
+                <!-- Kop Surat CV Selabintana -->
+                <div class="kop-surat">
+                    <div class="kop-logo">
+                        <svg width="72" height="62" viewBox="0 0 100 85" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Top Yellow Crown -->
+                            <path d="M 38 25 Q 50 12 62 25 L 58 8 L 50 18 L 42 8 Z" fill="#FFDC00" stroke="#007A33" stroke-width="1.5"/>
+                            <!-- Green Rounded Triangle -->
+                            <path d="M 50 5 L 92 72 Q 95 78 85 78 L 15 78 Q 5 78 8 72 Z" fill="none" stroke="#007A33" stroke-width="7" stroke-linejoin="round"/>
+                            <!-- Inner Circle with S -->
+                            <circle cx="50" cy="56" r="15" fill="none" stroke="#007A33" stroke-width="3"/>
+                            <text x="50" y="62.5" font-family="'Times New Roman', serif" font-weight="bold" font-size="20" fill="#007A33" text-anchor="middle">S</text>
+                        </svg>
+                    </div>
+                    <div class="kop-text">
+                        <div class="kop-nama">CV. SELABINTANA</div>
+                        <div class="kop-alamat">Jalan Gudang No. 29, Telp. (0266) 221194, Fax. (0266) 223909</div>
+                        <div class="kop-kota">Sukabumi 43112</div>
+                    </div>
+                </div>
+                <div class="kop-line"></div>
+
+                <!-- Dokumen Utama -->
                 <div class="doc-header">
                     <div class="doc-title">SURAT MUTASI</div>
                     <div class="doc-no" id="docNo">001/SB/SM/X/2026</div>
@@ -252,7 +312,6 @@
     </div>
 
     <script>
-        // URL Google Script milikmu sudah terpasang otomatis
         const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRKx1Ab1rl10IZzP2yuZhIdRK2AlZhW_ri5pjfMzGa3mEWrUMHFfQBrj_x_HovvCy7/exec";
 
         let savedData = [];
@@ -282,13 +341,11 @@
             fetchDriveData(url);
         }
 
-        // Konversi angka bulan ke Romawi (contoh: 10 -> X)
         function getRomanMonth(monthNumber) {
             const romanMonths = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
             return romanMonths[monthNumber - 1] || "I";
         }
 
-        // Auto-generate Nomor Surat otomatis: [Urutan]/SB/SM/[Romawi]/[Tahun]
         function autoGenerateNomorSurat() {
             const tglVal = document.getElementById('tanggalSurat').value;
             if (!tglVal) return;
