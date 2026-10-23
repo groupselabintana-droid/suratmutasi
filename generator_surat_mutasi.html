@@ -14,6 +14,9 @@
         .control-panel { flex: 1; min-width: 360px; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); height: fit-content; }
         .control-panel h2 { margin-top: 0; font-size: 1.1rem; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 14px; }
         
+        .connection-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; margin-bottom: 14px; font-size: 0.8rem; color: #166534; display: flex; justify-content: space-between; align-items: center; }
+        .connection-box button { background: none; border: none; color: #2563eb; text-decoration: underline; cursor: pointer; font-size: 0.8rem; padding: 0; }
+
         .form-row { display: flex; gap: 10px; }
         .form-row .form-group { flex: 1; }
         
@@ -82,23 +85,32 @@
     <div class="container">
         <!-- Panel Input Form -->
         <div class="control-panel">
-            <h2>1. Koneksi Google Drive</h2>
-            <div class="form-group">
-                <label>URL Web App Google Script</label>
-                <input type="text" id="scriptUrl" placeholder="Tempel URL Web App dari Apps Script">
-                <button class="btn" onclick="saveAndLoadScriptUrl()" style="margin-top: 6px;">Sambungkan ke Google Drive</button>
+            <!-- Status Koneksi Google Drive -->
+            <div id="connectionStatus" class="connection-box">
+                <span id="statusText">⏳ Menghubungkan ke Google Drive...</span>
+                <button type="button" onclick="toggleUrlSection()">Ubah URL</button>
             </div>
 
-            <h2>2. Input Mutasi Baru</h2>
+            <!-- Panel URL (Tersembunyi secara otomatis) -->
+            <div id="urlSection" style="display: none; margin-bottom: 14px;">
+                <h2>Koneksi Google Drive</h2>
+                <div class="form-group">
+                    <label>URL Web App Google Script</label>
+                    <input type="text" id="scriptUrl" placeholder="Tempel URL Web App dari Apps Script">
+                    <button class="btn" onclick="saveAndLoadScriptUrl()" style="margin-top: 6px;">Simpan Koneksi</button>
+                </div>
+            </div>
+
+            <h2>Input Mutasi Baru</h2>
             <form id="mutasiForm" onsubmit="handleFormSubmit(event)">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Nomor Surat</label>
-                        <input type="text" id="nomorSurat" placeholder="002/SB/SM/VI/2026" required oninput="previewRealtime()">
+                        <label>Tanggal Surat</label>
+                        <input type="date" id="tanggalSurat" required onchange="autoGenerateNomorSurat(); previewRealtime();">
                     </div>
                     <div class="form-group">
-                        <label>Tanggal Surat</label>
-                        <input type="date" id="tanggalSurat" required oninput="previewRealtime()">
+                        <label>Nomor Surat (Otomatis)</label>
+                        <input type="text" id="nomorSurat" placeholder="001/SB/SM/X/2026" required oninput="previewRealtime()">
                     </div>
                 </div>
 
@@ -147,10 +159,10 @@
 
             <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 16px 0;">
 
-            <h2>3. Pilih Data Tersimpan</h2>
+            <h2>Riwayat Data Tersimpan</h2>
             <div class="form-group">
                 <select id="savedSelect" onchange="loadFromSavedSelect()">
-                    <option value="">-- Hubungkan Google Drive Terlebih Dahulu --</option>
+                    <option value="">-- Pilih Data Mutasi Tersimpan --</option>
                 </select>
             </div>
 
@@ -175,7 +187,7 @@
             <div class="a4-page">
                 <div class="doc-header">
                     <div class="doc-title">SURAT MUTASI</div>
-                    <div class="doc-no" id="docNo">002/SB/SM/VI/2026</div>
+                    <div class="doc-no" id="docNo">001/SB/SM/X/2026</div>
                 </div>
 
                 <div class="doc-body">
@@ -214,13 +226,13 @@
                         </tr>
                     </table>
 
-                    <p>Surat keputusan ini mulai efektif pada <strong id="docBerlaku">01 Juli 2026</strong>, oleh karena itu, kepada yang bersangkutan untuk dapat mempersiapkan segala sesuatunya sebelum tanggal tersebut.</p>
+                    <p>Surat keputusan ini mulai efektif pada <strong id="docBerlaku">23 Oktober 2026</strong>, oleh karena itu, kepada yang bersangkutan untuk dapat mempersiapkan segala sesuatunya sebelum tanggal tersebut.</p>
 
                     <p>Demikian surat mutasi ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
                 </div>
 
                 <div class="signature-section">
-                    <div id="docTanggalPlace">Sukabumi, 25 Juni 2026</div>
+                    <div id="docTanggalPlace">Sukabumi, 23 Oktober 2026</div>
                     <div class="signature-space"></div>
                     <div id="docSigner">Drh, Titin Idayati</div>
                 </div>
@@ -240,25 +252,67 @@
     </div>
 
     <script>
+        // URL Google Script milikmu sudah terpasang otomatis
+        const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRKx1Ab1rl10IZzP2yuZhIdRK2AlZhW_ri5pjfMzGa3mEWrUMHFfQBrj_x_HovvCy7/exec";
+
         let savedData = [];
 
         window.onload = function() {
-            const savedUrl = localStorage.getItem('gas_script_url');
-            if (savedUrl) {
-                document.getElementById('scriptUrl').value = savedUrl;
-                fetchDriveData(savedUrl);
-            }
+            let savedUrl = DEFAULT_SCRIPT_URL;
+            document.getElementById('scriptUrl').value = savedUrl;
+            localStorage.setItem('gas_script_url', savedUrl);
+            fetchDriveData(savedUrl);
+
             // Set tanggal default hari ini
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('tanggalSurat').value = today;
             document.getElementById('berlakuMulai').value = today;
         };
 
+        function toggleUrlSection() {
+            const section = document.getElementById('urlSection');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
         function saveAndLoadScriptUrl() {
             const url = document.getElementById('scriptUrl').value.trim();
             if (!url) return alert("Masukkan URL Web App Google Script terlebih dahulu.");
             localStorage.setItem('gas_script_url', url);
+            document.getElementById('urlSection').style.display = 'none';
             fetchDriveData(url);
+        }
+
+        // Konversi angka bulan ke Romawi (contoh: 10 -> X)
+        function getRomanMonth(monthNumber) {
+            const romanMonths = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+            return romanMonths[monthNumber - 1] || "I";
+        }
+
+        // Auto-generate Nomor Surat otomatis: [Urutan]/SB/SM/[Romawi]/[Tahun]
+        function autoGenerateNomorSurat() {
+            const tglVal = document.getElementById('tanggalSurat').value;
+            if (!tglVal) return;
+
+            const dateObj = new Date(tglVal);
+            const month = dateObj.getMonth() + 1;
+            const year = dateObj.getFullYear();
+            const romanMonth = getRomanMonth(month);
+
+            let countInMonth = 0;
+            savedData.forEach(item => {
+                if (item.nomorSurat) {
+                    const pattern = new RegExp(`\/SM\/${romanMonth}\/${year}`, 'i');
+                    if (pattern.test(item.nomorSurat)) {
+                        countInMonth++;
+                    }
+                }
+            });
+
+            const nextSeq = String(countInMonth + 1).padStart(3, '0');
+            const generatedNo = `${nextSeq}/SB/SM/${romanMonth}/${year}`;
+            
+            document.getElementById('nomorSurat').value = generatedNo;
+            previewRealtime();
         }
 
         function formatDateIndonesian(val) {
@@ -273,7 +327,6 @@
             return `${day} ${month} ${year}`;
         }
 
-        // Ambil data yang tersimpan di Google Drive saat halaman terbuka
         function fetchDriveData(url) {
             fetch(url)
                 .then(res => res.json())
@@ -289,17 +342,22 @@
                             opt.textContent = `${row.nomorSurat || '-'} - ${row.nama || '-'} (${row.asal || '-'} ➔ ${row.mutasiKe || '-'})`;
                             select.appendChild(opt);
                         });
+
+                        document.getElementById('statusText').textContent = `🟢 Terhubung ke Drive (${savedData.length} data tersimpan)`;
+                        autoGenerateNomorSurat();
                     }
                 })
-                .catch(err => console.log("Gagal memuat data tersimpan:", err));
+                .catch(err => {
+                    console.log("Gagal memuat data tersimpan:", err);
+                    document.getElementById('statusText').textContent = "🔴 Gagal Terhubung ke Drive";
+                });
         }
 
-        // Realtime update pratinjau surat saat mengetik di form
         function previewRealtime() {
             const city = document.getElementById('issueCity').value || "Sukabumi";
             const tglSuratVal = document.getElementById('tanggalSurat').value;
             
-            document.getElementById('docNo').textContent = document.getElementById('nomorSurat').value || "002/SB/SM/VI/2026";
+            document.getElementById('docNo').textContent = document.getElementById('nomorSurat').value || "001/SB/SM/X/2026";
             document.getElementById('docNama').textContent = document.getElementById('namaKaryawan').value || "Avin Dyah Novitawanti";
             document.getElementById('docJabatanLama').textContent = document.getElementById('jabatanLama').value || "Head Unit";
             document.getElementById('docAsal').textContent = document.getElementById('unitAsal').value || "Hatchery Banyumas";
@@ -310,14 +368,9 @@
             document.getElementById('docSigner').textContent = document.getElementById('signerName').value || "Drh, Titin Idayati";
         }
 
-        // Kirim data baru ke Google Drive via Apps Script
         function handleFormSubmit(e) {
             e.preventDefault();
-            const scriptUrl = localStorage.getItem('gas_script_url');
-            if (!scriptUrl) {
-                alert("Harap masukkan dan simpan URL Web App Google Script terlebih dahulu di bagian atas!");
-                return;
-            }
+            const scriptUrl = localStorage.getItem('gas_script_url') || DEFAULT_SCRIPT_URL;
 
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
@@ -342,10 +395,12 @@
                 body: JSON.stringify(payload)
             })
             .then(() => {
-                alert("Data berhasil disimpan ke Google Drive!");
+                alert("Data berhasil tersimpan ke Google Drive!");
                 btn.disabled = false;
                 btn.textContent = "💾 Simpan ke Google Drive & Buat Surat";
-                fetchDriveData(scriptUrl); // Refresh data pilihan
+                
+                savedData.push(payload);
+                fetchDriveData(scriptUrl);
             })
             .catch(err => {
                 alert("Terjadi kesalahan saat menyimpan: " + err.message);
@@ -354,7 +409,6 @@
             });
         }
 
-        // Muat data dari dropdown pilihan tersimpan
         function loadFromSavedSelect() {
             const idx = document.getElementById('savedSelect').value;
             if (idx === "") return;
