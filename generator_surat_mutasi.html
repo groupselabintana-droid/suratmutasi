@@ -6,13 +6,13 @@
     <title>Generator & Input Surat Mutasi Karyawan</title>
     <style>
         * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
-        body { background-color: #f3f4f6; margin: 0; padding: 20px; color: #1f2937; }
+        body { background-color: #f3f4f6; margin: 0; padding: 15px; color: #1f2937; }
         
-        .container { max-width: 1250px; margin: 0 auto; display: flex; gap: 24px; flex-wrap: wrap; }
+        .container { max-width: 1350px; margin: 0 auto; display: flex; gap: 20px; align-items: flex-start; }
         
         /* Panel Form Input (Kiri) */
-        .control-panel { flex: 1; min-width: 360px; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); height: fit-content; }
-        .control-panel h2 { margin-top: 0; font-size: 1.1rem; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 14px; }
+        .control-panel { flex: 1; min-width: 340px; max-width: 450px; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .control-panel h2 { margin-top: 0; font-size: 1.05rem; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 12px; }
         
         .connection-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; margin-bottom: 14px; font-size: 0.8rem; color: #166534; display: flex; justify-content: space-between; align-items: center; }
         .connection-box button { background: none; border: none; color: #2563eb; text-decoration: underline; cursor: pointer; font-size: 0.8rem; padding: 0; }
@@ -20,12 +20,11 @@
         .form-row { display: flex; gap: 10px; }
         .form-row .form-group { flex: 1; }
         
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-weight: 600; font-size: 0.82rem; margin-bottom: 4px; color: #374151; }
-        .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.85rem; }
-        .form-group small { color: #6b7280; font-size: 0.72rem; display: block; margin-top: 2px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.8rem; margin-bottom: 4px; color: #374151; }
+        .form-group input, .form-group select { width: 100%; padding: 7px 9px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.83rem; }
         
-        .btn { display: inline-flex; align-items: center; justify-content: center; background: #2563eb; color: #fff; padding: 10px 14px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; gap: 8px; font-size: 0.875rem; transition: background 0.2s; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; background: #2563eb; color: #fff; padding: 9px 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; gap: 6px; font-size: 0.85rem; transition: background 0.2s; }
         .btn:hover { background: #1d4ed8; }
         .btn-success { background: #059669; }
         .btn-success:hover { background: #047857; }
@@ -33,7 +32,7 @@
         .btn-print:hover { background: #4338ca; }
         
         /* Panel Pratinjau Dokumen (Kanan) */
-        .preview-panel { flex: 1.8; min-width: 340px; display: flex; justify-content: center; }
+        .preview-panel { flex: 1.5; min-width: 320px; display: flex; justify-content: center; overflow-x: auto; padding-bottom: 20px; }
         
         /* Layout Presisi Lembar A4 Sesuai Word */
         .a4-page {
@@ -112,11 +111,17 @@
 
         .clear { clear: both; }
 
+        @media screen and (max-width: 1024px) {
+            .container { flex-direction: column; }
+            .control-panel { max-width: 100%; width: 100%; }
+            .preview-panel { width: 100%; }
+        }
+
         @media print {
             body { background: none; padding: 0; }
             .control-panel { display: none !important; }
-            .container { max-width: 100%; margin: 0; }
-            .preview-panel { width: 100%; }
+            .container { max-width: 100%; margin: 0; padding: 0; }
+            .preview-panel { width: 100%; padding: 0; }
             .a4-page { box-shadow: none; margin: 0; width: 100%; padding: 15mm 25.4mm 25.4mm 25.4mm; page-break-after: always; }
         }
     </style>
@@ -127,17 +132,17 @@
         <div class="control-panel">
             <!-- Status Koneksi Google Drive -->
             <div id="connectionStatus" class="connection-box">
-                <span id="statusText">⏳ Menghubungkan ke Google Drive...</span>
+                <span id="statusText">⏳ Menghubungkan ke Drive...</span>
                 <button type="button" onclick="toggleUrlSection()">Ubah URL</button>
             </div>
 
             <!-- Panel URL -->
-            <div id="urlSection" style="display: none; margin-bottom: 14px;">
-                <h2>Koneksi Google Drive</h2>
+            <div id="urlSection" style="display: none; margin-bottom: 14px; background: #f9fafb; padding: 10px; border-radius: 6px; border: 1px solid #e5e7eb;">
+                <h2 style="font-size: 0.95rem; margin-bottom: 8px;">Koneksi Google Drive Web App</h2>
                 <div class="form-group">
-                    <label>URL Web App Google Script</label>
-                    <input type="text" id="scriptUrl" placeholder="Tempel URL Web App dari Apps Script">
-                    <button class="btn" onclick="saveAndLoadScriptUrl()" style="margin-top: 6px;">Simpan Koneksi</button>
+                    <label>URL Web App Apps Script</label>
+                    <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
+                    <button class="btn" onclick="saveAndLoadScriptUrl()" style="margin-top: 6px;">Simpan & Coba Lagi</button>
                 </div>
             </div>
 
@@ -197,7 +202,7 @@
                 </button>
             </form>
 
-            <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 16px 0;">
+            <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 14px 0;">
 
             <h2>Riwayat Data Tersimpan</h2>
             <div class="form-group">
@@ -227,4 +232,4 @@
             <div class="a4-page">
                 <!-- Kop Surat CV Selabintana -->
                 <div class="kop-surat">
-                    <img class="kop-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhERDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAD2AMADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi46Gpqqre297l5ufp6perteLz9CXa32fc1R0f359/b19/3/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAFX/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQatan3/8A2gAMAwEAAhEDEQfA+C6KKKACiiigAooooAKKKKACiiigA60UUUAFJS0UAJRRRQAUUUUAFJS0UAJS0UUAIetJS/xU2gAzRSbaWgAopaSgAp
+                    <img class="kop-logo" src="data:image/jpeg;base64,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
