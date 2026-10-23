@@ -57,19 +57,16 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             padding-bottom: 4px;
         }
         .kop-logo {
             position: absolute;
-            left: 0;
+            left: 5px;
             top: 50%;
             transform: translateY(-50%);
-        }
-        .kop-logo img {
-            height: 70px;
-            width: auto;
-            display: block;
+            width: 70px;
+            height: auto;
         }
         .kop-text {
             text-align: center;
@@ -119,4 +116,115 @@
             body { background: none; padding: 0; }
             .control-panel { display: none !important; }
             .container { max-width: 100%; margin: 0; }
-            .preview-panel { width: 100%;
+            .preview-panel { width: 100%; }
+            .a4-page { box-shadow: none; margin: 0; width: 100%; padding: 15mm 25.4mm 25.4mm 25.4mm; page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Panel Input Form -->
+        <div class="control-panel">
+            <!-- Status Koneksi Google Drive -->
+            <div id="connectionStatus" class="connection-box">
+                <span id="statusText">⏳ Menghubungkan ke Google Drive...</span>
+                <button type="button" onclick="toggleUrlSection()">Ubah URL</button>
+            </div>
+
+            <!-- Panel URL -->
+            <div id="urlSection" style="display: none; margin-bottom: 14px;">
+                <h2>Koneksi Google Drive</h2>
+                <div class="form-group">
+                    <label>URL Web App Google Script</label>
+                    <input type="text" id="scriptUrl" placeholder="Tempel URL Web App dari Apps Script">
+                    <button class="btn" onclick="saveAndLoadScriptUrl()" style="margin-top: 6px;">Simpan Koneksi</button>
+                </div>
+            </div>
+
+            <h2>Input Mutasi Baru</h2>
+            <form id="mutasiForm" onsubmit="handleFormSubmit(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tanggal Surat</label>
+                        <input type="date" id="tanggalSurat" required onchange="autoGenerateNomorSurat(); previewRealtime();">
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor Surat (Otomatis)</label>
+                        <input type="text" id="nomorSurat" placeholder="001/SB/SM/X/2026" required oninput="previewRealtime()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nama Karyawan</label>
+                    <input type="text" id="namaKaryawan" placeholder="Avin Dyah Novitawanti" required oninput="previewRealtime()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Jabatan Lama</label>
+                        <input type="text" id="jabatanLama" placeholder="Head Unit" required oninput="previewRealtime()">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit Asal</label>
+                        <input type="text" id="unitAsal" placeholder="Hatchery Banyumas" required oninput="previewRealtime()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Jabatan Baru</label>
+                        <input type="text" id="jabatanBaru" placeholder="Head Unit" required oninput="previewRealtime()">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit Tujuan (Mutasi Ke)</label>
+                        <input type="text" id="unitTujuan" placeholder="Hatchery Sukajaya" required oninput="previewRealtime()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Berlaku Mulai Efektif</label>
+                        <input type="date" id="berlakuMulai" required oninput="previewRealtime()">
+                    </div>
+                    <div class="form-group">
+                        <label>Keterangan (Opsional)</label>
+                        <input type="text" id="keterangan" placeholder="Perbantuan / Promosi">
+                    </div>
+                </div>
+
+                <button type="submit" id="btnSubmit" class="btn btn-success" style="margin-top: 6px;">
+                    💾 Simpan ke Google Drive & Buat Surat
+                </button>
+            </form>
+
+            <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 16px 0;">
+
+            <h2>Riwayat Data Tersimpan</h2>
+            <div class="form-group">
+                <select id="savedSelect" onchange="loadFromSavedSelect()">
+                    <option value="">-- Pilih Data Mutasi Tersimpan --</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kota Penerbitan</label>
+                    <input type="text" id="issueCity" value="Sukabumi" oninput="previewRealtime()">
+                </div>
+                <div class="form-group">
+                    <label>Penandatangan</label>
+                    <input type="text" id="signerName" value="Drh, Titin Idayati" oninput="previewRealtime()">
+                </div>
+            </div>
+
+            <button class="btn btn-print" onclick="window.print()">
+                🖨️ Cetak / Simpan PDF
+            </button>
+        </div>
+
+        <!-- Panel Pratinjau Surat -->
+        <div class="preview-panel">
+            <div class="a4-page">
+                <!-- Kop Surat CV Selabintana -->
+                <div class="kop-surat">
+                    <img class="kop-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhERDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAD2AMADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi46Gpqqre297l5ufp6perteLz9CXa32fc1R0f359/b19/3/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAFX/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQatan3/8A2gAMAwEAAhEDEQfA+C6KKKACiiigAooooAKKKKACiiigA60UUUAFJS0UAJRRRQAUUUUAFJS0UAJS0UUAIetJS/xU2gAzRSbaWgAopaSgAp
