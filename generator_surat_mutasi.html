@@ -3,1253 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Surat Mutasi Karyawan - CV. Selabintana</title>
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SheetJS (xlsx) CDN for Excel Import -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        times: ['"Times New Roman"', 'Times', 'serif'],
-                        arial: ['Arial', 'sans-serif'],
-                        georgia: ['Georgia', 'serif'],
-                        calibri: ['Calibri', 'Candara', 'Segoe', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-
+    <title>Generator & Input Surat Mutasi Karyawan</title>
     <style>
-        /* Precision A4 Document Styling */
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+        body { background-color: #f3f4f6; margin: 0; padding: 20px; color: #1f2937; }
+        
+        .container { max-width: 1250px; margin: 0 auto; display: flex; gap: 24px; flex-wrap: wrap; }
+        
+        /* Panel Form Input (Kiri) */
+        .control-panel { flex: 1; min-width: 360px; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); height: fit-content; }
+        .control-panel h2 { margin-top: 0; font-size: 1.1rem; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 14px; }
+        
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+        
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.82rem; margin-bottom: 4px; color: #374151; }
+        .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.85rem; }
+        .form-group small { color: #6b7280; font-size: 0.72rem; display: block; margin-top: 2px; }
+        
+        .btn { display: inline-flex; align-items: center; justify-content: center; background: #2563eb; color: #fff; padding: 10px 14px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; gap: 8px; font-size: 0.875rem; transition: background 0.2s; }
+        .btn:hover { background: #1d4ed8; }
+        .btn-success { background: #059669; }
+        .btn-success:hover { background: #047857; }
+        .btn-print { background: #4f46e5; margin-top: 10px; }
+        .btn-print:hover { background: #4338ca; }
+        
+        /* Panel Pratinjau Dokumen (Kanan) */
+        .preview-panel { flex: 1.8; min-width: 340px; display: flex; justify-content: center; }
+        
+        /* Layout Presisi Lembar A4 */
         .a4-page {
             width: 210mm;
             min-height: 297mm;
-            padding: 25mm 20mm 20mm 20mm;
-            margin: 0 auto 20px auto;
+            padding: 17.8mm 25.4mm 25.4mm 25.4mm;
             background: #ffffff;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #000;
             position: relative;
             box-sizing: border-box;
-            color: #000000;
+            margin: 0 auto;
         }
 
-        /* Scalable Canvas Wrapper */
-        .preview-scaler {
-            transform-origin: top center;
-            transition: transform 0.2s ease-in-out;
-        }
+        .doc-header { text-align: center; margin-bottom: 25px; }
+        .doc-title { font-size: 14pt; font-weight: bold; text-decoration: underline; margin: 0; text-transform: uppercase; }
+        .doc-no { font-size: 11pt; margin-top: 2px; }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        .doc-body p { text-align: justify; margin-bottom: 12px; }
+        
+        .data-table { width: 100%; margin: 8px 0 12px 0; border-collapse: collapse; }
+        .data-table td { padding: 2px 0; vertical-align: top; }
+        .data-table td.label-col { width: 110px; }
+        .data-table td.colon-col { width: 20px; text-align: center; }
+        .data-table td.value-col { font-weight: normal; }
 
-        /* Kop Surat Line Divider */
-        .kop-line {
-            border-bottom: 2px solid #000;
-            position: relative;
-            margin-top: 8px;
-            margin-bottom: 20px;
-        }
-        .kop-line::after {
-            content: "";
-            display: block;
-            border-bottom: 1px solid #000;
-            margin-top: 2px;
-        }
+        .signature-section { margin-top: 40px; float: right; width: 220px; text-align: left; }
+        .signature-space { height: 65px; }
 
-        /* Print CSS Configuration */
+        .footer-section { position: absolute; bottom: 25.4mm; left: 25.4mm; right: 25.4mm; display: flex; justify-content: space-between; align-items: flex-end; font-size: 10pt; }
+        .tembusan { font-size: 10pt; }
+        .doc-code { font-size: 9pt; text-align: right; }
+
+        .clear { clear: both; }
+
         @media print {
-            body {
-                background: white !important;
-                color: black !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            #preview-wrapper {
-                padding: 0 !important;
-                margin: 0 !important;
-                overflow: visible !important;
-                height: auto !important;
-            }
-
-            .preview-scaler {
-                transform: scale(1) !important;
-                margin: 0 !important;
-            }
-
-            .a4-page {
-                box-shadow: none !important;
-                border: none !important;
-                width: 100% !important;
-                height: auto !important;
-                min-height: initial !important;
-                padding: var(--print-margin-top, 20mm) var(--print-margin-right, 20mm) var(--print-margin-bottom, 20mm) var(--print-margin-left, 20mm) !important;
-                margin: 0 !important;
-                page-break-after: always;
-                break-after: page;
-            }
-
-            /* Hide single preview when batch printing */
-            body.batch-printing-active #single-print-area {
-                display: none !important;
-            }
-
-            /* Show batch container only when active */
-            body.batch-printing-active #batch-print-area {
-                display: block !important;
-            }
-
-            @page {
-                size: A4 portrait;
-                margin: 0;
-            }
-        }
-
-        #batch-print-area {
-            display: none;
+            body { background: none; padding: 0; }
+            .control-panel { display: none !important; }
+            .container { max-width: 100%; margin: 0; }
+            .preview-panel { width: 100%; }
+            .a4-page { box-shadow: none; margin: 0; width: 100%; padding: 17.8mm 25.4mm 25.4mm 25.4mm; page-break-after: always; }
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+<body>
+    <div class="container">
+        <!-- Panel Input Form -->
+        <div class="control-panel">
+            <h2>1. Koneksi Google Drive</h2>
+            <div class="form-group">
+                <label>URL Web App Google Script</label>
+                <input type="text" id="scriptUrl" placeholder="Tempel URL Web App dari Apps Script">
+                <button class="btn" onclick="saveAndLoadScriptUrl()" style="margin-top: 6px;">Sambungkan ke Google Drive</button>
+            </div>
 
-    <!-- TOP HEADER / NAVBAR (No Print) -->
-    <header class="no-print bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            
-            <!-- Logo & Title -->
-            <div class="flex items-center space-x-3">
-                <div class="bg-brand-600 p-2 rounded-lg text-white shadow">
-                    <i class="fa-solid fa-file-signature text-lg"></i>
+            <h2>2. Input Mutasi Baru</h2>
+            <form id="mutasiForm" onsubmit="handleFormSubmit(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nomor Surat</label>
+                        <input type="text" id="nomorSurat" placeholder="002/SB/SM/VI/2026" required oninput="previewRealtime()">
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Surat</label>
+                        <input type="date" id="tanggalSurat" required oninput="previewRealtime()">
+                    </div>
                 </div>
-                <div>
-                    <h1 class="font-bold text-base sm:text-lg leading-tight flex items-center gap-2">
-                        <span>Generator Surat Mutasi</span>
-                        <span class="text-xs bg-brand-800 text-brand-100 px-2 py-0.5 rounded-full font-normal hidden sm:inline-block">Format CV. Selabintana</span>
-                    </h1>
-                    <p class="text-xs text-slate-400">Pembuat Surat Mutasi Karyawan Tunggal & Masal (Excel)</p>
+
+                <div class="form-group">
+                    <label>Nama Karyawan</label>
+                    <input type="text" id="namaKaryawan" placeholder="Avin Dyah Novitawanti" required oninput="previewRealtime()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Jabatan Lama</label>
+                        <input type="text" id="jabatanLama" placeholder="Head Unit" required oninput="previewRealtime()">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit Asal</label>
+                        <input type="text" id="unitAsal" placeholder="Hatchery Banyumas" required oninput="previewRealtime()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Jabatan Baru</label>
+                        <input type="text" id="jabatanBaru" placeholder="Head Unit" required oninput="previewRealtime()">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit Tujuan (Mutasi Ke)</label>
+                        <input type="text" id="unitTujuan" placeholder="Hatchery Sukajaya" required oninput="previewRealtime()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Berlaku Mulai Efektif</label>
+                        <input type="date" id="berlakuMulai" required oninput="previewRealtime()">
+                    </div>
+                    <div class="form-group">
+                        <label>Keterangan (Opsional)</label>
+                        <input type="text" id="keterangan" placeholder="Perbantuan / Promosi">
+                    </div>
+                </div>
+
+                <button type="submit" id="btnSubmit" class="btn btn-success" style="margin-top: 6px;">
+                    💾 Simpan ke Google Drive & Buat Surat
+                </button>
+            </form>
+
+            <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 16px 0;">
+
+            <h2>3. Pilih Data Tersimpan</h2>
+            <div class="form-group">
+                <select id="savedSelect" onchange="loadFromSavedSelect()">
+                    <option value="">-- Hubungkan Google Drive Terlebih Dahulu --</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kota Penerbitan</label>
+                    <input type="text" id="issueCity" value="Sukabumi" oninput="previewRealtime()">
+                </div>
+                <div class="form-group">
+                    <label>Penandatangan</label>
+                    <input type="text" id="signerName" value="Drh, Titin Idayati" oninput="previewRealtime()">
                 </div>
             </div>
 
-            <!-- Header Quick Action Buttons -->
-            <div class="flex items-center space-x-2">
-                <button onclick="loadHerulDemoData()" title="Muat Data Herul (Dokumen Acuan)" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-md border border-slate-700 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
-                    <span class="hidden md:inline">Demo (Herul)</span>
-                </button>
+            <button class="btn btn-print" onclick="window.print()">
+                🖨️ Cetak / Simpan PDF
+            </button>
+        </div>
 
-                <button onclick="saveDraft()" title="Simpan ke LocalStorage" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-md border border-slate-700 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    <span class="hidden md:inline">Simpan Draf</span>
-                </button>
+        <!-- Panel Pratinjau Surat -->
+        <div class="preview-panel">
+            <div class="a4-page">
+                <div class="doc-header">
+                    <div class="doc-title">SURAT MUTASI</div>
+                    <div class="doc-no" id="docNo">002/SB/SM/VI/2026</div>
+                </div>
 
-                <button onclick="resetForm()" title="Reset Formulir" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-rose-900/40 text-rose-300 rounded-md border border-slate-700 hover:border-rose-700/50 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-rotate-left"></i>
-                    <span class="hidden md:inline">Reset</span>
-                </button>
+                <div class="doc-body">
+                    <p>Dengan surat ini perusahaan memutuskan untuk melakukan mutasi terhadap staff di bawah ini:</p>
 
-                <div class="h-6 w-px bg-slate-700 mx-1"></div>
+                    <table class="data-table">
+                        <tr>
+                            <td class="label-col">Nama</td>
+                            <td class="colon-col">:</td>
+                            <td class="value-col" id="docNama">Avin Dyah Novitawanti</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">Jabatan</td>
+                            <td class="colon-col">:</td>
+                            <td class="value-col" id="docJabatanLama">Head Unit</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">Unit Asal</td>
+                            <td class="colon-col">:</td>
+                            <td class="value-col" id="docAsal">Hatchery Banyumas</td>
+                        </tr>
+                    </table>
 
-                <button onclick="triggerPrintCurrent()" class="px-4 py-1.5 text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-md transition shadow flex items-center gap-2">
-                    <i class="fa-solid fa-print"></i>
-                    <span>Cetak / PDF</span>
-                </button>
+                    <p>Jabatan serta lokasi unit yang baru adalah sebagai berikut :</p>
+
+                    <table class="data-table">
+                        <tr>
+                            <td class="label-col">Jabatan</td>
+                            <td class="colon-col">:</td>
+                            <td class="value-col" id="docJabatanBaru">Head Unit</td>
+                        </tr>
+                        <tr>
+                            <td class="label-col">Unit tujuan</td>
+                            <td class="colon-col">:</td>
+                            <td class="value-col" id="docTujuan">Hatchery Sukajaya</td>
+                        </tr>
+                    </table>
+
+                    <p>Surat keputusan ini mulai efektif pada <strong id="docBerlaku">01 Juli 2026</strong>, oleh karena itu, kepada yang bersangkutan untuk dapat mempersiapkan segala sesuatunya sebelum tanggal tersebut.</p>
+
+                    <p>Demikian surat mutasi ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
+                </div>
+
+                <div class="signature-section">
+                    <div id="docTanggalPlace">Sukabumi, 25 Juni 2026</div>
+                    <div class="signature-space"></div>
+                    <div id="docSigner">Drh, Titin Idayati</div>
+                </div>
+                <div class="clear"></div>
+
+                <div class="footer-section">
+                    <div class="tembusan">
+                        Tembusan :<br>
+                        HRD CV. Selabintana
+                    </div>
+                    <div class="doc-code">
+                        Fml/20/01, Rev 02, 14 November 2025
+                    </div>
+                </div>
             </div>
         </div>
-    </header>
-
-    <!-- MAIN WORKSPACE CONTAINER -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- LEFT PANEL: CONTROLS & FORM (No Print) -->
-        <section class="no-print lg:col-span-5 flex flex-col space-y-4">
-            
-            <!-- Mode Switcher Tabs -->
-            <div class="bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm flex space-x-1">
-                <button id="tabModeSingleBtn" onclick="switchAppMode('single')" class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-2 bg-brand-600 text-white shadow-sm">
-                    <i class="fa-solid fa-user-pen"></i>
-                    <span>Surat Tunggal</span>
-                </button>
-                <button id="tabModeBatchBtn" onclick="switchAppMode('batch')" class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100">
-                    <i class="fa-solid fa-file-excel text-emerald-600"></i>
-                    <span>Impor Excel (Batch)</span>
-                </button>
-            </div>
-
-            <!-- MODE 1: SINGLE LETTER FORM CONTAINER -->
-            <div id="singleModeForm" class="space-y-4">
-                
-                <!-- Accordions Card -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    
-                    <!-- Section A: Kop Surat Perusahaan -->
-                    <details class="group border-b border-slate-200" open>
-                        <summary class="flex justify-between items-center p-3.5 cursor-pointer font-medium text-slate-800 bg-slate-50/70 hover:bg-slate-100/80 transition select-none">
-                            <span class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                <i class="fa-solid fa-building text-brand-600 w-4"></i> 1. Kop Surat & Header
-                            </span>
-                            <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
-                        </summary>
-                        <div class="p-4 space-y-3 bg-white">
-                            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                                    <input type="checkbox" id="enableKop" onchange="updatePreview()" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
-                                    <span>Tampilkan Kop Surat Perusahaan</span>
-                                </label>
-                            </div>
-                            
-                            <div id="kopFields" class="space-y-3 opacity-60">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Nama Perusahaan / Organisasi</label>
-                                    <input type="text" id="compName" oninput="updatePreview()" placeholder="CV. SELABINTANA" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Alamat Perusahaan</label>
-                                    <input type="text" id="compAddress" oninput="updatePreview()" placeholder="Jl. Raya Selabintana No. 102, Sukabumi, Jawa Barat" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label class="block text-[11px] font-medium text-slate-600 mb-1">Telepon / Email</label>
-                                        <input type="text" id="compContact" oninput="updatePreview()" placeholder="Telp: (0266) 221133" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[11px] font-medium text-slate-600 mb-1">Logo Perusahaan</label>
-                                        <input type="file" id="compLogoInput" accept="image/*" onchange="handleLogoUpload(event)" class="w-full text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-brand-50 file:text-brand-700">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </details>
-
-                    <!-- Section B: Detail Surat Keputusan -->
-                    <details class="group border-b border-slate-200" open>
-                        <summary class="flex justify-between items-center p-3.5 cursor-pointer font-medium text-slate-800 bg-slate-50/70 hover:bg-slate-100/80 transition select-none">
-                            <span class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                <i class="fa-solid fa-file-signature text-brand-600 w-4"></i> 2. Judul & Nomor Surat
-                            </span>
-                            <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
-                        </summary>
-                        <div class="p-4 space-y-3 bg-white">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Judul Surat</label>
-                                    <input type="text" id="letterTitle" oninput="updatePreview()" value="SURAT MUTASI" class="w-full text-xs font-semibold border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none uppercase">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Nomor Surat</label>
-                                    <input type="text" id="letterNo" oninput="updatePreview()" placeholder="002/SB/SM/X/2025" class="w-full text-xs font-mono border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 mb-1">Paragraf Pembuka</label>
-                                <textarea id="openingText" oninput="updatePreview()" rows="2" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">Dengan surat ini perusahaan memutuskan untuk melakukan mutasi terhadap staff di bawah ini:</textarea>
-                            </div>
-                        </div>
-                    </details>
-
-                    <!-- Section C: Data Karyawan & Mutasi -->
-                    <details class="group border-b border-slate-200" open>
-                        <summary class="flex justify-between items-center p-3.5 cursor-pointer font-medium text-slate-800 bg-slate-50/70 hover:bg-slate-100/80 transition select-none">
-                            <span class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                <i class="fa-solid fa-user-gear text-brand-600 w-4"></i> 3. Data Karyawan & Lokasi Baru
-                            </span>
-                            <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
-                        </summary>
-                        <div class="p-4 space-y-3 bg-white">
-                            <!-- Input Karyawan -->
-                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
-                                <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block border-b border-slate-200 pb-1">Karyawan & Posisi Awal</span>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div class="col-span-2">
-                                        <label class="block text-[10px] font-medium text-slate-600">Nama Karyawan</label>
-                                        <input type="text" id="empName" oninput="updatePreview()" placeholder="Herul" class="w-full text-xs border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-brand-500 focus:outline-none font-semibold">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-medium text-slate-600">Jabatan Asal</label>
-                                        <input type="text" id="oldPos" oninput="updatePreview()" placeholder="Kepala Gudang" class="w-full text-xs border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-brand-500 focus:outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-medium text-slate-600">Unit Asal</label>
-                                        <input type="text" id="oldUnit" oninput="updatePreview()" placeholder="Campaka Farm" class="w-full text-xs border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-brand-500 focus:outline-none">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Input Mutasi Baru -->
-                            <div class="bg-brand-50/60 p-3 rounded-lg border border-brand-200/80 space-y-2">
-                                <span class="text-[11px] font-bold text-brand-900 uppercase tracking-wider block border-b border-brand-200 pb-1">Posisi & Lokasi Baru</span>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label class="block text-[10px] font-medium text-slate-600">Jabatan Baru</label>
-                                        <input type="text" id="newPos" oninput="updatePreview()" placeholder="Operator" class="w-full text-xs border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-brand-500 focus:outline-none font-semibold">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-medium text-slate-600">Unit Tujuan</label>
-                                        <input type="text" id="newUnit" oninput="updatePreview()" placeholder="Cikembar 2 Farm" class="w-full text-xs border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-brand-500 focus:outline-none font-semibold">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 mb-1">Tanggal Efektif Mutasi</label>
-                                <input type="text" id="effectiveDate" oninput="updatePreview()" placeholder="27 Oktober 2025" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                            </div>
-                        </div>
-                    </details>
-
-                    <!-- Section D: Penandatangan & Tembusan -->
-                    <details class="group border-b border-slate-200">
-                        <summary class="flex justify-between items-center p-3.5 cursor-pointer font-medium text-slate-800 bg-slate-50/70 hover:bg-slate-100/80 transition select-none">
-                            <span class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                <i class="fa-solid fa-pen-nib text-brand-600 w-4"></i> 4. Tanggal, TTD & Tembusan
-                            </span>
-                            <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
-                        </summary>
-                        <div class="p-4 space-y-3 bg-white">
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Kota Ditetapkan</label>
-                                    <input type="text" id="letterCity" oninput="updatePreview()" value="Sukabumi" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Tanggal Surat</label>
-                                    <input type="text" id="letterDate" oninput="updatePreview()" value="27 Oktober 2025" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Nama Penandatangan</label>
-                                    <input type="text" id="signerName" oninput="updatePreview()" value="Drh. Titin Idayati" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Jabatan Penandatangan</label>
-                                    <input type="text" id="signerPos" oninput="updatePreview()" placeholder="Pimpinan / Manager HRD" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 mb-1">Gambar Tanda Tangan / Stempel (Opsional)</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="file" id="sigInput" accept="image/*" onchange="handleSigUpload(event)" class="w-full text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-brand-50 file:text-brand-700">
-                                    <button onclick="removeSigImage()" type="button" title="Hapus Gambar TTD" class="p-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-[11px] font-medium text-slate-600 mb-1">Tembusan Surat</label>
-                                <input type="text" id="tembusanText" oninput="updatePreview()" value="HRD CV. Selabintana" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                            </div>
-                        </div>
-                    </details>
-
-                    <!-- Section E: Layout, Font & Margin -->
-                    <details class="group">
-                        <summary class="flex justify-between items-center p-3.5 cursor-pointer font-medium text-slate-800 bg-slate-50/70 hover:bg-slate-100/80 transition select-none">
-                            <span class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                <i class="fa-solid fa-sliders text-brand-600 w-4"></i> 5. Pengaturan Font & Margin
-                            </span>
-                            <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
-                        </summary>
-                        <div class="p-4 space-y-3 bg-white">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Jenis Font</label>
-                                    <select id="fontSelect" onchange="updatePreview()" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                        <option value="font-times" selected>Times New Roman (Formal)</option>
-                                        <option value="font-arial">Arial (Clean)</option>
-                                        <option value="font-georgia">Georgia (Classic)</option>
-                                        <option value="font-calibri">Calibri / Sans</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Ukuran Font Base</label>
-                                    <select id="fontSizeSelect" onchange="updatePreview()" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                        <option value="text-xs">Kecil (12px)</option>
-                                        <option value="text-sm" selected>Normal (14px)</option>
-                                        <option value="text-base">Besar (16px)</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Spasi Baris (Line Height)</label>
-                                    <select id="lineHeightSelect" onchange="updatePreview()" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                        <option value="leading-normal">Normal</option>
-                                        <option value="leading-relaxed" selected>Relaxed (Renggang)</option>
-                                        <option value="leading-loose">Loose (Sangat Renggang)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Margin Atas Kertas (mm)</label>
-                                    <input type="number" id="marginTopInput" oninput="updatePreview()" value="25" min="10" max="50" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                                </div>
-                            </div>
-                        </div>
-                    </details>
-
-                </div>
-            </div>
-
-            <!-- MODE 2: BATCH EXCEL IMPORT CONTAINER -->
-            <div id="batchModeForm" class="space-y-4 hidden">
-                
-                <!-- File Upload & Drag-Drop Card -->
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <h3 class="font-bold text-xs text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Impor File Excel Rekapitulasi
-                        </h3>
-                        <button onclick="loadDemoExcelData()" class="text-xs text-emerald-700 hover:text-emerald-800 font-medium underline flex items-center gap-1">
-                            <i class="fa-solid fa-cloud-arrow-down"></i> Muat 107 Sample Excel
-                        </button>
-                    </div>
-
-                    <div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-xl p-5 text-center bg-slate-50 transition cursor-pointer" onclick="document.getElementById('excelFileInput').click()">
-                        <i class="fa-solid fa-file-arrow-up text-2xl text-slate-400 mb-1"></i>
-                        <p class="text-xs font-semibold text-slate-700">Klik atau Tarik File Excel Ke Sini</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">Mendukung format .xlsx atau .xls (Daftar Mutasi Karyawan.xlsx)</p>
-                        <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
-                    </div>
-                </div>
-
-                <!-- Excel Data List / Table Preview -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                    <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-2">
-                        <div class="relative flex-grow">
-                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-xs text-slate-400"></i>
-                            <input type="text" id="batchSearchInput" oninput="filterBatchTable()" placeholder="Cari nama, nomor surat, unit..." class="w-full text-xs pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                        </div>
-                        <span id="batchCountBadge" class="text-[11px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-1 rounded">0 Data</span>
-                    </div>
-
-                    <div class="max-h-[380px] overflow-y-auto">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead class="bg-slate-100 text-slate-600 sticky top-0 z-10 text-[11px] uppercase">
-                                <tr>
-                                    <th class="p-2 text-center border-b"><input type="checkbox" id="selectAllBatch" onchange="toggleSelectAllBatch(this)"></th>
-                                    <th class="p-2 border-b">Nama</th>
-                                    <th class="p-2 border-b">No. Surat</th>
-                                    <th class="p-2 border-b">Mutasi (Asal &rarr; Tujuan)</th>
-                                    <th class="p-2 text-center border-b">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="batchTableBody" class="divide-y divide-slate-100 text-slate-700">
-                                <tr>
-                                    <td colspan="5" class="p-6 text-center text-slate-400 text-xs italic">
-                                        Belum ada data Excel yang diimpor. Klik tombol "Muat 107 Sample Excel" di atas untuk mencoba.
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Batch Controls Toolbar -->
-                    <div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-                        <button onclick="printSelectedBatch()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg transition shadow flex items-center gap-1.5">
-                            <i class="fa-solid fa-print"></i>
-                            <span>Cetak Terpilih (<span id="selectedBatchCount">0</span>)</span>
-                        </button>
-
-                        <button onclick="clearBatchData()" class="text-xs text-rose-600 hover:text-rose-700 font-medium">
-                            <i class="fa-solid fa-trash-can mr-1"></i> Kosongkan
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-
-        </section>
-
-        <!-- RIGHT PANEL: LIVE A4 DOCUMENT CANVAS PREVIEW -->
-        <section class="lg:col-span-7 flex flex-col items-center">
-            
-            <!-- Controls Bar for Canvas (No Print) -->
-            <div class="no-print w-full max-w-[210mm] mb-3 flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
-                <div class="flex items-center space-x-2 text-xs font-semibold text-slate-700">
-                    <i class="fa-solid fa-eye text-brand-600"></i>
-                    <span>Pratinjau Kertas A4</span>
-                    <span id="activeModeLabel" class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200 font-normal">Surat Tunggal</span>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <button onclick="copyLetterText()" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition flex items-center gap-1">
-                        <i class="fa-regular fa-copy"></i>
-                        <span>Salin Teks</span>
-                    </button>
-                    <div class="h-4 w-px bg-slate-300"></div>
-                    <label class="text-xs text-slate-500">Skala:</label>
-                    <select id="scaleSelector" onchange="changeScale(this.value)" class="text-xs bg-slate-50 border border-slate-300 rounded px-1.5 py-0.5 focus:outline-none">
-                        <option value="1">100%</option>
-                        <option value="0.85" selected>85%</option>
-                        <option value="0.7">70%</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Scrollable Container -->
-            <div id="preview-wrapper" class="w-full flex justify-center overflow-x-auto pb-8">
-                <div id="preview-scaler" class="preview-scaler">
-                    
-                    <!-- ACTIVE SINGLE PRINT DOCUMENT CANVAS -->
-                    <div id="single-print-area">
-                        <div id="print-area" class="a4-page font-times text-sm leading-relaxed">
-                            
-                            <!-- Kop Surat Header Container -->
-                            <div id="viewKopHeader" class="hidden">
-                                <div class="flex items-center justify-between gap-4 pb-2">
-                                    <div id="logoContainer" class="hidden w-16 h-16 flex-shrink-0">
-                                        <img id="compLogoPreview" src="" alt="Logo" class="max-w-full max-h-full object-contain">
-                                    </div>
-                                    <div class="text-center flex-grow">
-                                        <h2 id="viewCompName" class="text-lg font-bold uppercase tracking-wide">CV. SELABINTANA</h2>
-                                        <p id="viewCompAddress" class="text-xs">Jl. Raya Selabintana No. 102, Sukabumi, Jawa Barat</p>
-                                        <p id="viewCompContact" class="text-[11px] text-slate-700">Telp: (0266) 221133</p>
-                                    </div>
-                                </div>
-                                <div class="kop-line"></div>
-                            </div>
-
-                            <!-- Document Title & Number (Replicating Surat Mutasi.docx) -->
-                            <div class="text-center my-6 space-y-1">
-                                <h2 id="viewLetterTitle" class="text-base font-bold tracking-widest uppercase">SURAT MUTASI</h2>
-                                <p id="viewLetterNo" class="text-xs font-mono font-semibold">002/SB/SM/X/2025</p>
-                            </div>
-
-                            <!-- Opening Text -->
-                            <p id="viewOpeningText" class="mb-4 text-justify">
-                                Dengan surat ini perusahaan memutuskan untuk melakukan mutasi terhadap staff di bawah ini:
-                            </p>
-
-                            <!-- Initial Employee Details -->
-                            <div class="mb-6 pl-2">
-                                <table class="w-full text-xs sm:text-sm border-collapse">
-                                    <tr>
-                                        <td class="py-1 w-32 font-medium">Nama</td>
-                                        <td class="py-1 w-4">:</td>
-                                        <td id="viewEmpName" class="py-1 font-bold">Herul</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-1 font-medium">Jabatan</td>
-                                        <td class="py-1">:</td>
-                                        <td id="viewOldPos" class="py-1">Kepala Gudang</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-1 font-medium">Unit Asal</td>
-                                        <td class="py-1">:</td>
-                                        <td id="viewOldUnit" class="py-1">Campaka Farm</td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <!-- New Mutation Section Header & Table -->
-                            <p class="mb-2 font-medium">Jabatan serta lokasi unit yang baru adalah sebagai berikut :</p>
-                            <div class="mb-6 pl-2">
-                                <table class="w-full text-xs sm:text-sm border-collapse">
-                                    <tr>
-                                        <td class="py-1 w-32 font-medium">Jabatan</td>
-                                        <td class="py-1 w-4">:</td>
-                                        <td id="viewNewPos" class="py-1 font-bold">Operator</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-1 font-medium">Unit tujuan</td>
-                                        <td class="py-1">:</td>
-                                        <td id="viewNewUnit" class="py-1 font-bold">Cikembar 2 Farm</td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <!-- Effective Date Paragraph -->
-                            <p class="mb-6 text-justify leading-relaxed">
-                                Surat keputusan ini mulai efektif pada <span id="viewEffectiveDate" class="font-semibold">27 Oktober 2025</span>, oleh karena itu, kepada yang bersangkutan untuk dapat mempersiapkan segala sesuatunya sebelum tanggal tersebut.
-                            </p>
-
-                            <!-- Closing Text -->
-                            <p class="mb-12 text-justify">
-                                Demikian surat mutasi ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
-                            </p>
-
-                            <!-- Signature Block -->
-                            <div class="flex justify-end mb-10">
-                                <div class="w-64 text-left space-y-1 relative">
-                                    <p><span id="viewLetterCity">Sukabumi</span>, <span id="viewLetterDate">27 Oktober 2025</span></p>
-
-                                    <!-- Signature Image Placeholder / Display -->
-                                    <div class="h-24 flex items-center justify-start my-1 relative">
-                                        <img id="viewSigImage" src="" alt="TTD" class="max-h-20 max-w-full object-contain hidden">
-                                    </div>
-
-                                    <p id="viewSignerName" class="font-bold underline text-base">Drh. Titin Idayati</p>
-                                    <p id="viewSignerPos" class="text-xs text-slate-700"></p>
-                                </div>
-                            </div>
-
-                            <!-- Tembusan Section -->
-                            <div id="viewTembusanContainer" class="mt-8 pt-4 border-t border-slate-200 text-xs">
-                                <p class="font-medium">Tembusan :</p>
-                                <p id="viewTembusanText" class="pl-2">HRD CV. Selabintana</p>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- DYNAMIC CONTAINER FOR BATCH MULTI-PAGE PRINTING -->
-                    <div id="batch-print-area"></div>
-
-                </div>
-            </div>
-
-        </section>
-    </main>
-
-    <!-- TOAST NOTIFICATION UI -->
-    <div id="toast" class="fixed bottom-5 right-5 no-print transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center space-x-2 z-50">
-        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
-        <span id="toastMsg">Notifikasi</span>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        // --- 1. DATA DEFAULT (Acuan dari Surat Mutasi.docx & Daftar Mutasi Karyawan.xlsx) ---
-        const herulDemoData = {
-            enableKop: false,
-            compName: "CV. SELABINTANA",
-            compAddress: "Jl. Raya Selabintana No. 102, Sukabumi, Jawa Barat",
-            compContact: "Telp: (0266) 221133 | Email: hrd@selabintana.co.id",
-            letterTitle: "SURAT MUTASI",
-            letterNo: "002/SB/SM/X/2025",
-            openingText: "Dengan surat ini perusahaan memutuskan untuk melakukan mutasi terhadap staff di bawah ini:",
-            empName: "Herul",
-            oldPos: "Kepala Gudang",
-            oldUnit: "Campaka Farm",
-            newPos: "Operator",
-            newUnit: "Cikembar 2 Farm",
-            effectiveDate: "27 Oktober 2025",
-            letterCity: "Sukabumi",
-            letterDate: "27 Oktober 2025",
-            signerName: "Drh. Titin Idayati",
-            signerPos: "",
-            tembusanText: "HRD CV. Selabintana",
-            fontSelect: "font-times",
-            fontSizeSelect: "text-sm",
-            lineHeightSelect: "leading-relaxed",
-            marginTopInput: 25
-        };
+        let savedData = [];
 
-        // 107 Rekap Data Mutasi Sample Excel Generator
-        const generate107SampleExcelData = () => {
-            const names = ["Ahmad Subagja", "Siti Nurhaliza", "Budi Santoso", "Rian Ardianto", "Dewi Lestari", "Eko Prasetyo", "Fitriani", "Gunawan", "Hendra Wijaya", "Indah Permata"];
-            const oldUnits = ["Campaka Farm", "Benjot Farm", "Hatchery Boyolali Trayu", "Hatchery Garut", "Cikembar 1 Farm", "Sukabumi Central"];
-            const newUnits = ["Cikembar 2 Farm", "Rejeki Farm", "Farm Karang Anyar", "Hatchery Sukajaya", "Gudang Utama", "Cianjur Branch"];
-            const oldPositions = ["Operator", "Kepala Gudang", "Admin", "Foreman", "Teknisi", "Supervisor"];
-            const newPositions = ["Operator", "Teknisi", "Foreman", "Admin Gudang", "Koordinator Farm"];
-
-            const data = [];
-            
-            // Item #1 hingga #106
-            for (let i = 1; i <= 106; i++) {
-                const name = names[i % names.length] + " " + (i <= 10 ? "" : i);
-                const month = String((i % 12) + 1).padStart(2, '0');
-                const day = String((i % 28) + 1).padStart(2, '0');
-                const noSurat = `${String(i).padStart(3, '0')}/SB/SM/${month}/2024`;
-                
-                data.push({
-                    no: i,
-                    tanggal: `${day}/${month}/2024`,
-                    nomorSurat: noSurat,
-                    nama: name,
-                    jabatanAsal: oldPositions[i % oldPositions.length],
-                    unitAsal: oldUnits[i % oldUnits.length],
-                    unitTujuan: newUnits[i % newUnits.length],
-                    jabatanBaru: newPositions[i % newPositions.length],
-                    berlakuMulai: `${day} ${getIndonesianMonth(parseInt(month))} 2024`,
-                    keterangan: "Penyesuaian Struktur Operasional"
-                });
+        window.onload = function() {
+            const savedUrl = localStorage.getItem('gas_script_url');
+            if (savedUrl) {
+                document.getElementById('scriptUrl').value = savedUrl;
+                fetchDriveData(savedUrl);
             }
-
-            // Item #107 Exactly Herul (Entry #107)
-            data.push({
-                no: 107,
-                tanggal: "27/10/2025",
-                nomorSurat: "002/SB/SM/X/2025",
-                nama: "Herul",
-                jabatanAsal: "Kepala Gudang",
-                unitAsal: "Campaka Farm",
-                unitTujuan: "Cikembar 2 Farm",
-                jabatanBaru: "Operator",
-                berlakuMulai: "27 Oktober 2025",
-                keterangan: "Surat Mutasi Resmi"
-            });
-
-            return data;
+            // Set tanggal default hari ini
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tanggalSurat').value = today;
+            document.getElementById('berlakuMulai').value = today;
         };
 
-        function getIndonesianMonth(monthNum) {
+        function saveAndLoadScriptUrl() {
+            const url = document.getElementById('scriptUrl').value.trim();
+            if (!url) return alert("Masukkan URL Web App Google Script terlebih dahulu.");
+            localStorage.setItem('gas_script_url', url);
+            fetchDriveData(url);
+        }
+
+        function formatDateIndonesian(val) {
+            if (!val) return "-";
+            let dateObj = new Date(val);
+            if (isNaN(dateObj.getTime())) return val;
+
             const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            return months[monthNum - 1] || "Januari";
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const month = months[dateObj.getMonth()];
+            const year = dateObj.getFullYear();
+            return `${day} ${month} ${year}`;
         }
 
-        let globalBatchData = [];
-        let currentSigBase64 = "";
-        let currentLogoBase64 = "";
-
-        // --- 2. INITIALIZATION ---
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedDraft = localStorage.getItem('selabintana_mutasi_draft');
-            if (savedDraft) {
-                try {
-                    const parsed = JSON.parse(savedDraft);
-                    populateForm(parsed);
-                    showToast("Draf formulir berhasil dimuat!", "fa-circle-check", "text-emerald-400");
-                } catch(e) {
-                    loadHerulDemoData();
-                }
-            } else {
-                loadHerulDemoData();
-            }
-
-            changeScale(document.getElementById('scaleSelector').value);
-        });
-
-        // --- 3. FORM CONTROLS & SYNCHRONIZATION ---
-        function loadHerulDemoData() {
-            populateForm(herulDemoData);
-            showToast("Data acuan Herul (CV. Selabintana) dimuat!", "fa-wand-magic-sparkles", "text-amber-400");
-        }
-
-        function populateForm(data) {
-            Object.keys(data).forEach(key => {
-                const el = document.getElementById(key);
-                if (el) {
-                    if (el.type === 'checkbox') {
-                        el.checked = data[key];
-                    } else {
-                        el.value = data[key];
+        // Ambil data yang tersimpan di Google Drive saat halaman terbuka
+        function fetchDriveData(url) {
+            fetch(url)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.result === 'success') {
+                        savedData = response.data;
+                        const select = document.getElementById('savedSelect');
+                        select.innerHTML = '<option value="">-- Pilih Data Mutasi Tersimpan --</option>';
+                        
+                        savedData.forEach((row, idx) => {
+                            const opt = document.createElement('option');
+                            opt.value = idx;
+                            opt.textContent = `${row.nomorSurat || '-'} - ${row.nama || '-'} (${row.asal || '-'} ➔ ${row.mutasiKe || '-'})`;
+                            select.appendChild(opt);
+                        });
                     }
-                }
-            });
-            updatePreview();
+                })
+                .catch(err => console.log("Gagal memuat data tersimpan:", err));
         }
 
-        function getFormData() {
-            const keys = [
-                'enableKop', 'compName', 'compAddress', 'compContact',
-                'letterTitle', 'letterNo', 'openingText',
-                'empName', 'oldPos', 'oldUnit', 'newPos', 'newUnit',
-                'effectiveDate', 'letterCity', 'letterDate',
-                'signerName', 'signerPos', 'tembusanText',
-                'fontSelect', 'fontSizeSelect', 'lineHeightSelect', 'marginTopInput'
-            ];
-            const data = {};
-            keys.forEach(k => {
-                const el = document.getElementById(k);
-                if (el) {
-                    data[k] = el.type === 'checkbox' ? el.checked : el.value;
-                }
-            });
-            return data;
+        // Realtime update pratinjau surat saat mengetik di form
+        function previewRealtime() {
+            const city = document.getElementById('issueCity').value || "Sukabumi";
+            const tglSuratVal = document.getElementById('tanggalSurat').value;
+            
+            document.getElementById('docNo').textContent = document.getElementById('nomorSurat').value || "002/SB/SM/VI/2026";
+            document.getElementById('docNama').textContent = document.getElementById('namaKaryawan').value || "Avin Dyah Novitawanti";
+            document.getElementById('docJabatanLama').textContent = document.getElementById('jabatanLama').value || "Head Unit";
+            document.getElementById('docAsal').textContent = document.getElementById('unitAsal').value || "Hatchery Banyumas";
+            document.getElementById('docJabatanBaru').textContent = document.getElementById('jabatanBaru').value || "Head Unit";
+            document.getElementById('docTujuan').textContent = document.getElementById('unitTujuan').value || "Hatchery Sukajaya";
+            document.getElementById('docBerlaku').textContent = formatDateIndonesian(document.getElementById('berlakuMulai').value);
+            document.getElementById('docTanggalPlace').textContent = `${city}, ${formatDateIndonesian(tglSuratVal)}`;
+            document.getElementById('docSigner').textContent = document.getElementById('signerName').value || "Drh, Titin Idayati";
         }
 
-        function updatePreview() {
-            const data = getFormData();
-
-            // Kop Perusahaan Toggle
-            const kopHeader = document.getElementById('viewKopHeader');
-            const kopFields = document.getElementById('kopFields');
-            if (data.enableKop) {
-                kopHeader.classList.remove('hidden');
-                kopFields.classList.remove('opacity-60');
-            } else {
-                kopHeader.classList.add('hidden');
-                kopFields.classList.add('opacity-60');
+        // Kirim data baru ke Google Drive via Apps Script
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const scriptUrl = localStorage.getItem('gas_script_url');
+            if (!scriptUrl) {
+                alert("Harap masukkan dan simpan URL Web App Google Script terlebih dahulu di bagian atas!");
+                return;
             }
 
-            document.getElementById('viewCompName').innerText = data.compName || '';
-            document.getElementById('viewCompAddress').innerText = data.compAddress || '';
-            document.getElementById('viewCompContact').innerText = data.compContact || '';
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.textContent = "⏳ Menyimpan ke Google Drive...";
 
-            // Judul & Nomor Surat
-            document.getElementById('viewLetterTitle').innerText = data.letterTitle || 'SURAT MUTASI';
-            document.getElementById('viewLetterNo').innerText = data.letterNo || '';
-            document.getElementById('viewOpeningText').innerText = data.openingText || '';
-
-            // Data Karyawan
-            document.getElementById('viewEmpName').innerText = data.empName || '-';
-            document.getElementById('viewOldPos').innerText = data.oldPos || '-';
-            document.getElementById('viewOldUnit').innerText = data.oldUnit || '-';
-
-            // Data Mutasi Baru
-            document.getElementById('viewNewPos').innerText = data.newPos || '-';
-            document.getElementById('viewNewUnit').innerText = data.newUnit || '-';
-
-            // Paragraf Efektif
-            document.getElementById('viewEffectiveDate').innerText = data.effectiveDate || '-';
-
-            // Penandatangan
-            document.getElementById('viewLetterCity').innerText = data.letterCity || 'Sukabumi';
-            document.getElementById('viewLetterDate').innerText = data.letterDate || '-';
-            document.getElementById('viewSignerName').innerText = data.signerName || '';
-            document.getElementById('viewSignerPos').innerText = data.signerPos || '';
-
-            // Tembusan
-            const tembusanContainer = document.getElementById('viewTembusanContainer');
-            if (data.tembusanText && data.tembusanText.trim() !== '') {
-                tembusanContainer.classList.remove('hidden');
-                document.getElementById('viewTembusanText').innerText = data.tembusanText;
-            } else {
-                tembusanContainer.classList.add('hidden');
-            }
-
-            // Formatting Layout, Fonts & Margins
-            const printArea = document.getElementById('print-area');
-            printArea.classList.remove('font-times', 'font-arial', 'font-georgia', 'font-calibri');
-            printArea.classList.add(data.fontSelect);
-
-            printArea.classList.remove('text-xs', 'text-sm', 'text-base');
-            printArea.classList.add(data.fontSizeSelect);
-
-            printArea.classList.remove('leading-normal', 'leading-relaxed', 'leading-loose');
-            printArea.classList.add(data.lineHeightSelect);
-
-            const marginTop = (data.marginTopInput || 25) + 'mm';
-            printArea.style.paddingTop = marginTop;
-            document.documentElement.style.setProperty('--print-margin-top', marginTop);
-        }
-
-        // --- 4. IMAGE HANDLERS (LOGO & SIGNATURE) ---
-        function handleLogoUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentLogoBase64 = e.target.result;
-                    document.getElementById('compLogoPreview').src = currentLogoBase64;
-                    document.getElementById('logoContainer').classList.remove('hidden');
-                    showToast("Logo perusahaan diunggah!", "fa-image", "text-emerald-400");
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function handleSigUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentSigBase64 = e.target.result;
-                    const sigImg = document.getElementById('viewSigImage');
-                    sigImg.src = currentSigBase64;
-                    sigImg.classList.remove('hidden');
-                    showToast("Gambar tanda tangan diunggah!", "fa-pen-nib", "text-emerald-400");
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function removeSigImage() {
-            currentSigBase64 = "";
-            const sigImg = document.getElementById('viewSigImage');
-            sigImg.src = "";
-            sigImg.classList.add('hidden');
-            document.getElementById('sigInput').value = "";
-            showToast("Gambar tanda tangan dihapus", "fa-trash", "text-rose-400");
-        }
-
-        // --- 5. MODE SWITCHER & BATCH PROCESSING ---
-        function switchAppMode(mode) {
-            const singleForm = document.getElementById('singleModeForm');
-            const batchForm = document.getElementById('batchModeForm');
-            const singleBtn = document.getElementById('tabModeSingleBtn');
-            const batchBtn = document.getElementById('tabModeBatchBtn');
-            const activeLabel = document.getElementById('activeModeLabel');
-
-            if (mode === 'single') {
-                singleForm.classList.remove('hidden');
-                batchForm.classList.add('hidden');
-
-                singleBtn.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-2 bg-brand-600 text-white shadow-sm";
-                batchBtn.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100";
-                activeLabel.innerText = "Surat Tunggal";
-            } else {
-                singleForm.classList.add('hidden');
-                batchForm.classList.remove('hidden');
-
-                batchBtn.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-sm";
-                singleBtn.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100";
-                activeLabel.innerText = "Batch Impor Excel";
-            }
-        }
-
-        function loadDemoExcelData() {
-            globalBatchData = generate107SampleExcelData();
-            renderBatchTable(globalBatchData);
-            showToast("107 data rekap mutasi berhasil dimuat!", "fa-file-excel", "text-emerald-400");
-        }
-
-        function handleExcelUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet);
-
-                    if (json.length === 0) {
-                        showToast("File Excel kosong!", "fa-circle-exclamation", "text-amber-400");
-                        return;
-                    }
-
-                    // Map keys to standard fields
-                    globalBatchData = json.map((row, idx) => ({
-                        no: row['No'] || row['NO'] || (idx + 1),
-                        tanggal: row['Tanggal'] || row['TANGGAL'] || '',
-                        nomorSurat: row['Nomor Surat'] || row['NOMOR SURAT'] || row['No Surat'] || '',
-                        nama: row['Nama'] || row['NAMA'] || row['Nama Karyawan'] || '',
-                        jabatanAsal: row['Jabatan Asal'] || row['JABATAN ASAL'] || '',
-                        unitAsal: row['Unit Asal'] || row['UNIT ASAL'] || '',
-                        unitTujuan: row['Unit Tujuan'] || row['UNIT TUJUAN'] || '',
-                        jabatanBaru: row['Jabatan Baru'] || row['JABATAN BARU'] || '',
-                        berlakuMulai: row['Berlaku Mulai'] || row['BERLAKU MULAI'] || row['Tanggal Efektif'] || '',
-                        keterangan: row['Keterangan'] || ''
-                    }));
-
-                    renderBatchTable(globalBatchData);
-                    showToast(`${globalBatchData.length} baris Excel berhasil diimpor!`, "fa-file-circle-check", "text-emerald-400");
-                } catch(err) {
-                    showToast("Gagal membaca file Excel", "fa-triangle-exclamation", "text-rose-400");
-                }
+            const payload = {
+                tanggal: formatDateIndonesian(document.getElementById('tanggalSurat').value),
+                nomorSurat: document.getElementById('nomorSurat').value,
+                nama: document.getElementById('namaKaryawan').value,
+                jabatan: document.getElementById('jabatanLama').value,
+                asal: document.getElementById('unitAsal').value,
+                mutasiKe: document.getElementById('unitTujuan').value,
+                jabatanBaru: document.getElementById('jabatanBaru').value,
+                berlakuMulai: formatDateIndonesian(document.getElementById('berlakuMulai').value),
+                keterangan: document.getElementById('keterangan').value
             };
-            reader.readAsArrayBuffer(file);
-        }
 
-        function renderBatchTable(dataList) {
-            const tbody = document.getElementById('batchTableBody');
-            const badge = document.getElementById('batchCountBadge');
-            badge.innerText = `${dataList.length} Data`;
-
-            if (dataList.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="p-6 text-center text-slate-400 text-xs italic">
-                            Tidak ada data untuk ditampilkan.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = dataList.map((item, index) => `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="p-2 text-center">
-                        <input type="checkbox" class="batch-row-checkbox rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" data-index="${index}" onchange="updateSelectedBatchCount()">
-                    </td>
-                    <td class="p-2 font-bold text-slate-800">${escapeHtml(item.nama)}</td>
-                    <td class="p-2 font-mono text-[11px] text-slate-600">${escapeHtml(item.nomorSurat)}</td>
-                    <td class="p-2 text-[11px]">
-                        <span class="text-slate-500">${escapeHtml(item.unitAsal)}</span> &rarr; 
-                        <strong class="text-emerald-700">${escapeHtml(item.unitTujuan)}</strong>
-                    </td>
-                    <td class="p-2 text-center">
-                        <button onclick="previewBatchRow(${index})" title="Pratinjau Surat Ini" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-medium transition">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-
-            updateSelectedBatchCount();
-        }
-
-        function filterBatchTable() {
-            const query = document.getElementById('batchSearchInput').value.toLowerCase();
-            const filtered = globalBatchData.filter(item => 
-                (item.nama && item.nama.toLowerCase().includes(query)) ||
-                (item.nomorSurat && item.nomorSurat.toLowerCase().includes(query)) ||
-                (item.unitAsal && item.unitAsal.toLowerCase().includes(query)) ||
-                (item.unitTujuan && item.unitTujuan.toLowerCase().includes(query))
-            );
-            renderBatchTable(filtered);
-        }
-
-        function toggleSelectAllBatch(masterCheckbox) {
-            const checkboxes = document.querySelectorAll('.batch-row-checkbox');
-            checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
-            updateSelectedBatchCount();
-        }
-
-        function updateSelectedBatchCount() {
-            const selected = document.querySelectorAll('.batch-row-checkbox:checked');
-            document.getElementById('selectedBatchCount').innerText = selected.length;
-        }
-
-        function previewBatchRow(index) {
-            const item = globalBatchData[index];
-            if (!item) return;
-
-            document.getElementById('empName').value = item.nama || '';
-            document.getElementById('letterNo').value = item.nomorSurat || '';
-            document.getElementById('oldPos').value = item.jabatanAsal || '';
-            document.getElementById('oldUnit').value = item.unitAsal || '';
-            document.getElementById('newPos').value = item.jabatanBaru || '';
-            document.getElementById('newUnit').value = item.unitTujuan || '';
-            document.getElementById('effectiveDate').value = item.berlakuMulai || '';
-
-            updatePreview();
-            showToast(`Pratinjau surat untuk: ${item.nama}`, "fa-eye", "text-brand-400");
-        }
-
-        function clearBatchData() {
-            globalBatchData = [];
-            renderBatchTable([]);
-            showToast("Data batch dikosongkan", "fa-trash", "text-rose-400");
-        }
-
-        // --- 6. PRINTING & BATCH EXPORT ---
-        function triggerPrintCurrent() {
-            document.body.classList.remove('batch-printing-active');
-            window.print();
-        }
-
-        function printSelectedBatch() {
-            const selectedCheckboxes = document.querySelectorAll('.batch-row-checkbox:checked');
-            if (selectedCheckboxes.length === 0) {
-                showToast("Pilih setidaknya 1 baris surat untuk dicetak!", "fa-triangle-exclamation", "text-amber-400");
-                return;
-            }
-
-            const batchContainer = document.getElementById('batch-print-area');
-            batchContainer.innerHTML = ''; // Clear previous
-
-            const baseData = getFormData();
-
-            selectedCheckboxes.forEach(cb => {
-                const idx = parseInt(cb.getAttribute('data-index'), 10);
-                const item = globalBatchData[idx];
-                if (item) {
-                    const pageEl = document.createElement('div');
-                    pageEl.className = `a4-page ${baseData.fontSelect} ${baseData.fontSizeSelect} ${baseData.lineHeightSelect}`;
-                    pageEl.style.paddingTop = (baseData.marginTopInput || 25) + 'mm';
-
-                    pageEl.innerHTML = `
-                        ${baseData.enableKop ? `
-                        <div class="flex items-center justify-between gap-4 pb-2">
-                            ${currentLogoBase64 ? `<div class="w-16 h-16 flex-shrink-0"><img src="${currentLogoBase64}" class="max-w-full max-h-full object-contain"></div>` : ''}
-                            <div class="text-center flex-grow">
-                                <h2 class="text-lg font-bold uppercase tracking-wide">${escapeHtml(baseData.compName)}</h2>
-                                <p class="text-xs">${escapeHtml(baseData.compAddress)}</p>
-                                <p class="text-[11px] text-slate-700">${escapeHtml(baseData.compContact)}</p>
-                            </div>
-                        </div>
-                        <div class="kop-line"></div>
-                        ` : ''}
-
-                        <div class="text-center my-6 space-y-1">
-                            <h2 class="text-base font-bold tracking-widest uppercase">${escapeHtml(baseData.letterTitle)}</h2>
-                            <p class="text-xs font-mono font-semibold">${escapeHtml(item.nomorSurat)}</p>
-                        </div>
-
-                        <p class="mb-4 text-justify">${escapeHtml(baseData.openingText)}</p>
-
-                        <div class="mb-6 pl-2">
-                            <table class="w-full text-xs sm:text-sm border-collapse">
-                                <tr>
-                                    <td class="py-1 w-32 font-medium">Nama</td>
-                                    <td class="py-1 w-4">:</td>
-                                    <td class="py-1 font-bold">${escapeHtml(item.nama)}</td>
-                                </tr>
-                                <tr>
-                                    <td class="py-1 font-medium">Jabatan</td>
-                                    <td class="py-1">:</td>
-                                    <td class="py-1">${escapeHtml(item.jabatanAsal)}</td>
-                                </tr>
-                                <tr>
-                                    <td class="py-1 font-medium">Unit Asal</td>
-                                    <td class="py-1">:</td>
-                                    <td class="py-1">${escapeHtml(item.unitAsal)}</td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <p class="mb-2 font-medium">Jabatan serta lokasi unit yang baru adalah sebagai berikut :</p>
-                        <div class="mb-6 pl-2">
-                            <table class="w-full text-xs sm:text-sm border-collapse">
-                                <tr>
-                                    <td class="py-1 w-32 font-medium">Jabatan</td>
-                                    <td class="py-1 w-4">:</td>
-                                    <td class="py-1 font-bold">${escapeHtml(item.jabatanBaru)}</td>
-                                </tr>
-                                <tr>
-                                    <td class="py-1 font-medium">Unit tujuan</td>
-                                    <td class="py-1">:</td>
-                                    <td class="py-1 font-bold">${escapeHtml(item.unitTujuan)}</td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <p class="mb-6 text-justify leading-relaxed">
-                            Surat keputusan ini mulai efektif pada <span class="font-semibold">${escapeHtml(item.berlakuMulai)}</span>, oleh karena itu, kepada yang bersangkutan untuk dapat mempersiapkan segala sesuatunya sebelum tanggal tersebut.
-                        </p>
-
-                        <p class="mb-12 text-justify">Demikian surat mutasi ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
-
-                        <div class="flex justify-end mb-10">
-                            <div class="w-64 text-left space-y-1 relative">
-                                <p>${escapeHtml(baseData.letterCity)}, ${escapeHtml(baseData.letterDate)}</p>
-
-                                <div class="h-24 flex items-center justify-start my-1 relative">
-                                    ${currentSigBase64 ? `<img src="${currentSigBase64}" class="max-h-20 max-w-full object-contain">` : ''}
-                                </div>
-
-                                <p class="font-bold underline text-base">${escapeHtml(baseData.signerName)}</p>
-                                <p class="text-xs text-slate-700">${escapeHtml(baseData.signerPos)}</p>
-                            </div>
-                        </div>
-
-                        ${baseData.tembusanText ? `
-                        <div class="mt-8 pt-4 border-t border-slate-200 text-xs">
-                            <p class="font-medium">Tembusan :</p>
-                            <p class="pl-2">${escapeHtml(baseData.tembusanText)}</p>
-                        </div>
-                        ` : ''}
-                    `;
-
-                    batchContainer.appendChild(pageEl);
-                }
+            fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                alert("Data berhasil disimpan ke Google Drive!");
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan ke Google Drive & Buat Surat";
+                fetchDriveData(scriptUrl); // Refresh data pilihan
+            })
+            .catch(err => {
+                alert("Terjadi kesalahan saat menyimpan: " + err.message);
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan ke Google Drive & Buat Surat";
             });
-
-            // Activate batch printing class & open print dialog
-            document.body.classList.add('batch-printing-active');
-            window.print();
         }
 
-        // --- 7. UTILITY FUNCTIONS ---
-        function changeScale(scaleVal) {
-            const container = document.getElementById('preview-scaler');
-            container.style.transform = `scale(${scaleVal})`;
-        }
+        // Muat data dari dropdown pilihan tersimpan
+        function loadFromSavedSelect() {
+            const idx = document.getElementById('savedSelect').value;
+            if (idx === "") return;
 
-        function saveDraft() {
-            const data = getFormData();
-            localStorage.setItem('selabintana_mutasi_draft', JSON.stringify(data));
-            showToast("Draf formulir tersimpan di browser!", "fa-floppy-disk", "text-emerald-400");
-        }
-
-        function resetForm() {
-            localStorage.removeItem('selabintana_mutasi_draft');
-            loadHerulDemoData();
-            showToast("Formulir direset ke data acuan", "fa-rotate-left", "text-rose-400");
-        }
-
-        function copyLetterText() {
-            const data = getFormData();
-            const textContent = `
-${data.enableKop ? `${data.compName}\n${data.compAddress}\n${data.compContact}\n=============================\n` : ''}
-${data.letterTitle}
-Nomor: ${data.letterNo}
-
-${data.openingText}
-
-Nama        : ${data.empName}
-Jabatan     : ${data.oldPos}
-Unit Asal   : ${data.oldUnit}
-
-Jabatan serta lokasi unit yang baru adalah sebagai berikut :
-Jabatan     : ${data.newPos}
-Unit tujuan : ${data.newUnit}
-
-Surat keputusan ini mulai efektif pada ${data.effectiveDate}, oleh karena itu, kepada yang bersangkutan untuk dapat mempersiapkan segala sesuatunya sebelum tanggal tersebut.
-
-Demikian surat mutasi ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
-
-${data.letterCity}, ${data.letterDate}
-${data.signerName}
-
-Tembusan :
-${data.tembusanText}
-            `.trim();
-
-            const dummy = document.createElement("textarea");
-            document.body.appendChild(dummy);
-            dummy.value = textContent;
-            dummy.select();
-            document.execCommand("copy");
-            document.body.removeChild(dummy);
-
-            showToast("Teks surat disalin ke clipboard!", "fa-copy", "text-emerald-400");
-        }
-
-        function showToast(message, iconClass = "fa-circle-check", iconColor = "text-emerald-400") {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMsg');
-            const toastIcon = document.getElementById('toastIcon');
-
-            toastMsg.innerText = message;
-            toastIcon.className = `fa-solid ${iconClass} ${iconColor} text-base`;
-
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+            const row = savedData[idx];
+            document.getElementById('docNo').textContent = row.nomorSurat || "-";
+            document.getElementById('docNama').textContent = row.nama || "-";
+            document.getElementById('docJabatanLama').textContent = row.jabatan || "-";
+            document.getElementById('docAsal').textContent = row.asal || "-";
+            document.getElementById('docJabatanBaru').textContent = row.jabatanBaru || "-";
+            document.getElementById('docTujuan').textContent = row.mutasiKe || "-";
+            document.getElementById('docBerlaku').textContent = formatDateIndonesian(row.berlakuMulai);
+            
+            const city = document.getElementById('issueCity').value || "Sukabumi";
+            document.getElementById('docTanggalPlace').textContent = `${city}, ${formatDateIndonesian(row.tanggal)}`;
         }
     </script>
 </body>
